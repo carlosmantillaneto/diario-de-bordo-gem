@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Diário de Bordo</title>
+  <style>
+    :root {
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --primary: #1e3a8a;
+      --accent: #f59e0b;
+      --text-main: #1f2937;
+      --border-color: #d1d5db;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 15px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 15px;
+    }
+    header h1 {
+      font-size: 1.1rem;
+      margin: 0;
+      color: var(--primary);
+    }
+    header span {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .auth-section {
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .auth-section input {
+      padding: 8px;
+      width: calc(100% - 110px);
+      border: none;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+    .auth-section button {
+      padding: 8px 15px;
+      background: var(--accent);
+      border: none;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    @media(max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #4b5563;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button.btn-action {
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .summary-box {
+      border: 1px dashed var(--border-color);
+      padding: 15px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.85rem;
+      border-radius: 6px;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>DIÁRIO DE BORDO</h1>
+      <span>CITROËN C3 - UBER E 99</span>
+    </header>
+
+    <!-- PAINEL DE AUTENTICAÇÃO (Sessão de 10 minutos) -->
+    <div id="authCard" class="auth-section">
+      <label style="color: white;">ACESSO - CHAVE DO DIÁRIO</label>
+      <p style="font-size: 0.8rem; margin: 5px 0 10px 0;">Digite a chave definida no Code.gs. Ela fica salva só neste aparelho por 10 minutos.</p>
+      <div style="display: flex;">
+        <input type="password" id="txtChave" placeholder="Digite a chave...">
+        <button onclick="tentarEntrar()">ENTRAR</button>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL (Protegido) -->
+    <div id="mainApp" class="hidden">
+      
+      <!-- Resumos Semana / Mês -->
+      <div class="grid-2">
+        <div class="card">
+          <label>SEMANA</label>
+          <div class="summary-box">Os números aparecem depois do primeiro lançamento.</div>
+        </div>
+        <div class="card">
+          <label>MÊS</label>
+          <div class="summary-box">Os números aparecem depois do primeiro lançamento.</div>
+        </div>
+      </div>
+
+      <!-- Lançamentos e Abastecimentos -->
+      <div class="grid-2">
+        <!-- Lançar o Dia -->
+        <div class="card">
+          <label>LANÇAR O DIA</label>
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="lancaData">
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>KM Início</label><input type="number" id="lancaKmIni"></div>
+            <div class="form-group"><label>KM Fim</label><input type="number" id="lancaKmFim"></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Uber (Total do Dia)</label><input type="number" step="0.01" id="lancaUber" value="0.00"></div>
+            <div class="form-group"><label>99 (Total do Dia)</label><input type="number" step="0.01" id="lanca99" value="0.00"></div>
+          </div>
+          <button class="btn-action" onclick="salvarDia()">SALVAR DIA</button>
+        </div>
+
+        <!-- Abastecimento -->
+        <div class="card">
+          <label>ABASTECIMENTO</label>
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="abasData">
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Litros</label><input type="number" step="0.001" id="abasLitros"></div>
+            <div class="form-group"><label>Valor Total (R$)</label><input type="number" step="0.01" id="abasValor"></div>
+          </div>
+          <button class="btn-action" style="background:#d97706; color:white;" onclick="salvarAbast()">SALVAR ABASTECIMENTO</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // URL do Web App do Apps Script
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjd78xuMrvnGKm3CtbjxQ14YBadUE_T6fywHae5HgWtmC7IFtQRB1sr9SctqBTrEJT/exec";
+
+    // Controle de Sessão de 10 minutos
+    function verificarSessao() {
+      const expiresAt = localStorage.getItem('diario_expires_at');
+      const now = new Date().getTime();
+      
+      if (expiresAt && now < parseInt(expiresAt)) {
+        liberarAcesso();
+      } else {
+        bloquearAcesso();
+      }
+    }
+
+    function tentarEntrar() {
+      const chave = document.getElementById('txtChave').value;
+      
+      // Chamada via API Web App se hospedado externamente, ou google.script.run se nativo
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.sucesso) {
+            const expirationTime = new Date().getTime() + (10 * 60 * 1000); // 10 minutos
+            localStorage.setItem('diario_expires_at', expirationTime);
+            liberarAcesso();
+          } else {
+            alert(res.mensagem);
+          }
+        })
+        .validarChave(chave);
+    }
+
+    function liberarAcesso() {
+      document.getElementById('authCard').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+    }
+
+    function bloquearAcesso() {
+      document.getElementById('authCard').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+      localStorage.removeItem('diario_expires_at');
+    }
+
+    function salvarDia() {
+      const dados = {
+        data: document.getElementById('lancaData').value,
+        kmInicio: document.getElementById('lancaKmIni').value,
+        kmFim: document.getElementById('lancaKmFim').value,
+        horaInicio: "",
+        horaFim: "",
+        uber: document.getElementById('lancaUber').value,
+        nove_nove: document.getElementById('lanca99').value,
+        gorjeta: 0,
+        obs: ""
+      };
+      google.script.run.withSuccessHandler(msg => alert(msg)).salvarLancamento(dados);
+    }
+
+    function salvarAbast() {
+      const dados = {
+        data: document.getElementById('abasData').value,
+        kmPainel: 0,
+        litros: document.getElementById('abasLitros').value,
+        valorTotal: document.getElementById('abasValor').value,
+        descontos: 0,
+        obs: ""
+      };
+      google.script.run.withSuccessHandler(msg => alert(msg)).salvarAbastecimento(dados);
+    }
+
+    window.onload = function() {
+      verificarSessao();
+      const hoje = new Date().toISOString().split('T')[0];
+      if(document.getElementById('lancaData')) document.getElementById('lancaData').value = hoje;
+      if(document.getElementById('abasData')) document.getElementById('abasData').value = hoje;
+    };
+  </script>
+</body>
+</html>
